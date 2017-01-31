@@ -1,0 +1,165 @@
+/**
+ * Created by Pijush on 11/19/2015.
+ */
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.*;
+
+public class test extends JFrame {
+
+    JButton compile;
+    JTextArea testArea=new JTextArea();
+    JFileChooser fileChooser=new JFileChooser();
+    int d;
+    public test()
+    {
+        setSize(400, 600);
+        setLayout(new GridLayout(2, 1));
+        getContentPane().add(testArea);
+
+        compile=new JButton("Compile");
+        compile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (fileChooser.showSaveDialog(test.this) != JFileChooser.APPROVE_OPTION)
+                    return;
+                File file = fileChooser.getSelectedFile();
+                try {
+                    FileWriter out = new FileWriter(file);
+                    testArea.write(out);
+                    out.close();
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                String filepath = file.getPath();
+                String filepath2 = filepath.substring(0, filepath.lastIndexOf(File.separator));
+                System.out.print(filepath2);
+                String name = file.getName();
+
+
+                String name2 = file.getName().substring(0, file.getName().lastIndexOf("."));
+
+
+
+                try {
+                    ProcessBuilder pb = new ProcessBuilder("cmd", "/C", "gcc " + name + " -o " + name2);
+
+                    pb.directory(new File(filepath2));
+                    Process p = pb.start();
+                    p.waitFor();
+                    int x = p.exitValue();
+                    if (x == 0) {
+
+                        System.out.print("compiled successfully");
+                        Runtime rt=Runtime.getRuntime();
+                        try {
+
+                            /*Process process=rt.exec("cmd /c start "+name2+".exe", null, new File(filepath2));
+                             process.waitFor();
+
+                            Process process1 = Runtime
+                                    .getRuntime()
+                                    .exec("notepad.exe");
+                            process1.waitFor();*/
+                            String command="@echo off\n" +
+                                    "echo Successful\n" +
+                                    "\n" +
+                                    "pause\n"+
+
+                                    "call :deleteSelf&exit /b\n" +
+                                    ":deleteSelf\n" +
+                                    "start /b \"\" cmd /c del \"%~f0\"&exit /b";
+
+
+                                    //"  del /q /f \"%~f0\" >nul 2>&1 & exit /b 0\n"+
+                                   // "exit";
+                            //final File file2=new File(filepath2+"\\run.bat");
+
+                            //file2.createNewFile();
+
+                            //PrintWriter writer=new PrintWriter(file2);
+                           // writer.println(command);
+
+                            //writer.println("\nDEL "+"%~f0&&");
+                           // writer.close();
+
+
+
+
+                          Process p2=Runtime.getRuntime().exec("cmd /c start g.bat",null, new File("C:\\Users\\Pijush\\Desktop"));
+
+
+
+                            new Thread(new Runnable() {
+                                public void run() {
+                                    //file2.delete();
+                                }
+                            }).run();
+
+                           //file2.delete();
+
+
+
+
+
+
+
+
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+
+
+
+
+            }
+        });
+
+        JButton button=new JButton("Run");
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Runtime rt=Runtime.getRuntime();
+                try {
+                    Process process=rt.exec("cmd /c start test2.exe",null,new File("C:\\Users\\Pijush\\Desktop"));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        add(button);
+
+                getContentPane(). add(compile);
+        setVisible(true);
+
+
+
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
+    }
+
+    public static void main(String[] args) {
+        new test();
+    }
+
+}

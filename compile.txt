@@ -1,0 +1,88 @@
+Action compileaction=new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                area.setText("");
+                //File file = m_chooser.getSelectedFile();
+
+
+                if (!(filename.getText().endsWith(".c") || filename.getText().endsWith(".cpp")))
+
+                {
+                    if (m_chooser.showSaveDialog(CodeEditor.this) != JFileChooser.APPROVE_OPTION)
+                        return;
+                    try {
+                        FileWriter out = new FileWriter(m_chooser.getSelectedFile());
+                        m_monitor.write(out);
+                        out.close();
+
+
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                    filename.setText("                " + m_chooser.getSelectedFile().getName());
+                } else {
+
+
+                    try {
+                        FileWriter out = new FileWriter(m_chooser.getSelectedFile());
+                        m_monitor.write(out);
+                        out.close();
+
+
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+
+
+                }
+
+                String filepath = m_chooser.getSelectedFile().getPath();
+                String filepath2 = filepath.substring(0, filepath.lastIndexOf(File.separator));
+
+                String name = m_chooser.getSelectedFile().getName();
+                String name2 = name.substring(0, name.lastIndexOf("."));
+
+                try {
+                    if (filename.getText().endsWith(".c"))
+                        pb = new ProcessBuilder("cmd", "/C", "gcc " + "\"" + filepath2 + "\\" + name + "\"" + " -o \"" + name2+"\"");
+                    else if (filename.getText().endsWith(".cpp"))
+                        pb = new ProcessBuilder("cmd", "/C", "g++ " + "\"" + filepath2 + "\\" + name + "\"" + " -o \"" + name2+"\"");
+
+
+                    pb.directory(new File(filepath2));
+                    Process p = pb.start();
+                    p.waitFor();
+                    int x = p.exitValue();
+
+                    if (x == 0) {
+                        area.setForeground(d);
+                        area.setText("            == 0 error.. Compilation Finished");
+                    } else {
+
+                        BufferedReader r = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                        //BufferedWriter rm=new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+
+
+                        String out;
+                        area.setText("");
+
+
+                        while ((out = r.readLine()) != null)
+
+
+                        {
+
+
+                            area.setForeground(RED);
+                            area.append(out + System.getProperty("line.separator"));
+                        }
+
+
+                    }
+
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };

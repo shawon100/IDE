@@ -1,0 +1,106 @@
+JMenuItem run=new JMenuItem("Run");
+        run.setIcon(runicon);
+        Action runaction=new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                area.setText("          ");
+                if (!(filename.getText().endsWith(".c") || filename.getText().endsWith(".cpp"))) {
+
+
+                    if (!(JOptionPane.showConfirmDialog(CodeEditor.this, "File has not build..build now?", "Information", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION))
+                        return;
+                    else {
+                        if (m_chooser.showSaveDialog(CodeEditor.this) != JFileChooser.APPROVE_OPTION)
+                            return;
+                        try {
+                            FileWriter out = new FileWriter(m_chooser.getSelectedFile());
+                            m_monitor.write(out);
+                            out.close();
+
+
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                        filename.setText("                " + m_chooser.getSelectedFile().getName());
+                    }
+                } else {
+
+
+                    try {
+                        FileWriter out = new FileWriter(m_chooser.getSelectedFile());
+                        m_monitor.write(out);
+                        out.close();
+
+
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+
+
+                }
+
+
+                String filepath = m_chooser.getSelectedFile().getPath();
+                String filepath2 = filepath.substring(0, filepath.lastIndexOf(File.separator));
+                String name = m_chooser.getSelectedFile().getName();
+                String name2 = name.substring(0, name.lastIndexOf("."));
+
+                try {
+                    if (filename.getText().endsWith(".c"))
+                        pb = new ProcessBuilder("cmd", "/C", "gcc " + "\"" + filepath2 + "\\" + name + "\"" + " -o \"" + name2+"\"");
+                    else if (filename.getText().endsWith(".cpp"))
+                        pb = new ProcessBuilder("cmd", "/C", "g++ " + "\"" + filepath2 + "\\" + name + "\"" + " -o \"" + name2+"\"");
+
+
+                    pb.directory(new File(filepath2));
+                    Process p = pb.start();
+                    p.waitFor();
+                    int x = p.exitValue();
+
+                    if (x == 0) {
+                        Runtime rt = Runtime.getRuntime();
+                        try {
+                            String username = System.getProperty("user.name");
+                            String c = "@echo off\n" + "\"" +
+                                    filepath2 + "\\" + name2 + ".exe\"\n" + "echo.\n" + "echo.\n" + "echo Process finished\n" +
+                                    "pause\n" +
+                                    "exit";
+
+
+                            File dir = new File("C:\\Users\\" + username + "\\CodeEditor");
+                            dir.mkdir();
+
+                            try {
+                                File file2 = new File("C:\\Users\\" + username + "\\CodeEditor" + "\\run.bat");
+                                file2.createNewFile();
+                                PrintWriter writer = new PrintWriter(file2);
+                                writer.println(c);
+                                writer.close();
+
+
+                                Process p2 = Runtime.getRuntime().exec("cmd /c start run.bat", null, new File("C:\\Users\\" + username + "\\CodeEditor"));
+                            } catch (Exception ex) {
+
+                            }
+
+
+                        } catch (Exception ex) {
+
+                        }
+
+                    } else {
+
+                        JOptionPane.showMessageDialog(CodeEditor.this, "Compilation Error", "Error", JOptionPane.ERROR_MESSAGE);
+
+                    }
+
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+
+            }
+        };
+        run.addActionListener(runaction);
